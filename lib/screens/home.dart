@@ -8,6 +8,7 @@ import '../product_card.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'login.dart';
+import 'profile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,6 +41,12 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _openProfile() async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const ProfilePage()));
+    if (mounted) setState(() {});
+  }
+
   Future<void> _logout() async {
     final request = context.read<CookieRequest>();
     await request.logout('$baseUrl/akun/api/logout/');
@@ -48,10 +55,10 @@ class _HomePageState extends State<HomePage> {
 
   void _onSellerTap() {
     final request = context.read<CookieRequest>();
-    if (!request.loggedIn) {
-      _openLogin();
+    if (request.loggedIn) {
+      _openProfile();
     } else {
-      _snack('Aktivasi seller lewat halaman Profil (menyusul).');
+      _openLogin();
     }
   }
 
@@ -128,6 +135,8 @@ class _HomePageState extends State<HomePage> {
         title: const Logo(),
         backgroundColor: Colors.transparent,
         actions: [
+          if (request.loggedIn)
+            TextButton(onPressed: _openProfile, child: const Text('Profil')),
           TextButton(
             onPressed: request.loggedIn ? _logout : _openLogin,
             child: Text(request.loggedIn ? 'Keluar' : 'Masuk'),
