@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'screens/home.dart';
+import 'screens/main_shell.dart';
 import 'theme.dart';
 
 void main() => runApp(const LapakaianApp());
@@ -17,7 +17,7 @@ class LapakaianApp extends StatelessWidget {
         title: 'LaPAKAIAN',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: const HomePage(),
+        home: const MainShell(),
       ),
     );
   }
