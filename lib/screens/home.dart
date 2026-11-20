@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+
 import '../config.dart';
 import '../models/product.dart';
 import '../product_card.dart';
@@ -11,7 +12,10 @@ import 'login.dart';
 import 'profile.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final VoidCallback onOpenListings;
+
+  const HomePage({super.key, required this.onOpenListings});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -30,14 +34,17 @@ class _HomePageState extends State<HomePage> {
     final request = context.read<CookieRequest>();
     final res = await request.get('$baseUrl/listing/json/');
     final list = (res['products'] as List).take(8);
-    return list.map((j) => Product.fromJson(j as Map<String, dynamic>)).toList();
+    return list
+        .map((j) => Product.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 
   void _snack(String msg) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openLogin() async {
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginPage()));
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const LoginPage()));
     if (mounted) setState(() {});
   }
 
@@ -64,11 +71,17 @@ class _HomePageState extends State<HomePage> {
 
   void _comingSoon() => _snack('Halaman katalog dikerjakan di modul lain.');
 
-  Widget _sectionHeader(String title, String action) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(title, style: GoogleFonts.archivo(fontSize: 20, fontWeight: FontWeight.w700)),
-      TextButton(onPressed: _comingSoon, child: Text('$action →')),
-    ]);
+  Widget _sectionHeader(String title, String action, VoidCallback onTap) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.archivo(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
+        TextButton(onPressed: onTap, child: Text('$action →')),
+      ],
+    );
   }
 
   Widget _categoryTile(String label) {
@@ -83,7 +96,10 @@ class _HomePageState extends State<HomePage> {
           border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(label, style: GoogleFonts.archivo(fontSize: 14, fontWeight: FontWeight.w600)),
+        child: Text(
+          label,
+          style: GoogleFonts.archivo(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
@@ -99,17 +115,21 @@ class _HomePageState extends State<HomePage> {
           );
         }
         if (snap.hasError) {
-          return Column(children: [
-            const Text('Gagal memuat produk. Pastikan server Django hidup.'),
-            TextButton(
-              onPressed: () => setState(() => _products = _load()),
-              child: const Text('Coba lagi'),
-            ),
-          ]);
+          return Column(
+            children: [
+              const Text('Gagal memuat produk. Pastikan server Django hidup.'),
+              TextButton(
+                onPressed: () => setState(() => _products = _load()),
+                child: const Text('Coba lagi'),
+              ),
+            ],
+          );
         }
         final items = snap.data!;
         if (items.isEmpty) {
-          return const Text('Belum ada barang. Produk terbaru dari seller akan tampil di sini.');
+          return const Text(
+            'Belum ada barang. Produk terbaru dari seller akan tampil di sini.',
+          );
         }
         return GridView.builder(
           shrinkWrap: true,
@@ -146,66 +166,99 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
-          child: ListView(padding: const EdgeInsets.all(24), children: [
-            const Text('PRELOVED & THRIFT',
-                style: TextStyle(fontSize: 12, letterSpacing: 1, color: AppColors.muted)),
-            const SizedBox(height: 8),
-            Text('Baju bagus layak dipakai lagi',
-                style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 12),
-            const Text(
-              'Beli dan jual baju preloved dari sesama pengguna, langsung dari lemari mereka.',
-              style: TextStyle(color: AppColors.muted, fontSize: 15),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: _comingSoon, child: const Text('Belanja sekarang')),
-            const SizedBox(height: 12),
-            OutlinedButton(onPressed: _onSellerTap, child: const Text('Jadi seller')),
-            const SizedBox(height: 32),
-            _sectionHeader('Kategori', 'Lihat semua'),
-            const SizedBox(height: 8),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 2.6,
-              children: _categories.map(_categoryTile).toList(),
-            ),
-            const SizedBox(height: 32),
-            _sectionHeader('Baru masuk', 'Lihat katalog'),
-            const SizedBox(height: 8),
-            _productSection(),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.ink,
-                borderRadius: BorderRadius.circular(12),
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const Text(
+                'PRELOVED & THRIFT',
+                style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 1,
+                  color: AppColors.muted,
+                ),
               ),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Lemari penuh? Jual di sini.',
-                    style: GoogleFonts.archivo(
-                        fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
-                const SizedBox(height: 8),
-                const Text(
-                  'Buka toko gratis dengan akun yang sama, tambah barang, tentukan harga.',
-                  style: TextStyle(color: Color(0xFFD8D2C7), fontSize: 14),
+              const SizedBox(height: 8),
+              Text(
+                'Baju bagus layak dipakai lagi',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Beli dan jual baju preloved dari sesama pengguna, langsung dari lemari mereka.',
+                style: TextStyle(color: AppColors.muted, fontSize: 15),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: widget.onOpenListings,
+                child: const Text('Belanja sekarang'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: _onSellerTap,
+                child: const Text('Jadi seller'),
+              ),
+              const SizedBox(height: 32),
+              _sectionHeader(
+                'Kategori',
+                'Lihat semua',
+                widget.onOpenListings,
+              ),
+              const SizedBox(height: 8),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 2.6,
+                children: _categories.map(_categoryTile).toList(),
+              ),
+              const SizedBox(height: 32),
+              _sectionHeader(
+                'Baru masuk',
+                'Lihat katalog',
+                widget.onOpenListings,
+              ),
+              const SizedBox(height: 8),
+              _productSection(),
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.ink,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.ink,
-                  ),
-                  onPressed: _onSellerTap,
-                  child: const Text('Jadi seller'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Lemari penuh? Jual di sini.',
+                      style: GoogleFonts.archivo(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Buka toko gratis dengan akun yang sama, tambah barang, tentukan harga.',
+                      style: TextStyle(color: Color(0xFFD8D2C7), fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.ink,
+                      ),
+                      onPressed: _onSellerTap,
+                      child: const Text('Jadi seller'),
+                    ),
+                  ],
                 ),
-              ]),
-            ),
-            const SizedBox(height: 24),
-          ]),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
