@@ -8,6 +8,7 @@ import 'home.dart';
 import 'listings.dart';
 import 'login.dart';
 import 'profile.dart';
+import 'store_profile.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -45,6 +46,7 @@ class _MainShellState extends State<MainShell> {
       loggedIn
           ? ProfilePage(key: ValueKey(_profileVersion))
           : _LoginPrompt(title: 'Profil', onLogin: _login),
+      const StoreProfilePage(),
     ];
 
     return Scaffold(
@@ -83,6 +85,11 @@ class _MainShellState extends State<MainShell> {
             selectedIcon: Icon(Icons.person),
             label: 'Profil',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_bag_outlined),
+            selectedIcon: Icon(Icons.shopping_bag),
+            label: 'Toko',
+),
         ],
       ),
     );
