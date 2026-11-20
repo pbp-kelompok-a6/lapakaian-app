@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+
 import '../theme.dart';
 import '../widgets.dart';
 import 'home.dart';
+import 'listings.dart';
 import 'login.dart';
 import 'profile.dart';
 
@@ -28,10 +30,17 @@ class _MainShellState extends State<MainShell> {
     final loggedIn = context.watch<CookieRequest>().loggedIn;
 
     final pages = <Widget>[
-      const HomePage(),
-      const _Placeholder(title: 'Katalog', note: 'Dikerjakan di modul Katalog & Wishlist.'),
+      HomePage(onOpenListings: () => setState(() => _index = 2)),
+      const _Placeholder(
+        title: 'Katalog',
+        note: 'Dikerjakan di modul Katalog & Wishlist.',
+      ),
+      const ListingsPage(),
       loggedIn
-          ? const _Placeholder(title: 'Wishlist', note: 'Dikerjakan di modul Katalog & Wishlist.')
+          ? const _Placeholder(
+              title: 'Wishlist',
+              note: 'Dikerjakan di modul Katalog & Wishlist.',
+            )
           : _LoginPrompt(title: 'Wishlist', onLogin: _login),
       loggedIn
           ? ProfilePage(key: ValueKey(_profileVersion))
@@ -46,13 +55,34 @@ class _MainShellState extends State<MainShell> {
         indicatorColor: AppColors.border,
         onDestinationSelected: (i) => setState(() {
           _index = i;
-          if (i == 3) _profileVersion++;
+          if (i == 4) _profileVersion++;
         }),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Beranda'),
-          NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'Katalog'),
-          NavigationDestination(icon: Icon(Icons.favorite_border), selectedIcon: Icon(Icons.favorite), label: 'Wishlist'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Beranda',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront),
+            label: 'Katalog',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.list_alt_outlined),
+            selectedIcon: Icon(Icons.list_alt),
+            label: 'Listing',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Wishlist',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profil',
+          ),
         ],
       ),
     );
@@ -69,11 +99,14 @@ class _Placeholder extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Logo(), backgroundColor: Colors.transparent),
       body: Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(title, style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text(note, style: const TextStyle(color: AppColors.muted)),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text(note, style: const TextStyle(color: AppColors.muted)),
+          ],
+        ),
       ),
     );
   }
@@ -89,14 +122,20 @@ class _LoginPrompt extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Logo(), backgroundColor: Colors.transparent),
       body: Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('Masuk untuk membuka $title'),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: 200,
-            child: FilledButton(onPressed: onLogin, child: const Text('Masuk')),
-          ),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Masuk untuk membuka $title'),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 200,
+              child: FilledButton(
+                onPressed: onLogin,
+                child: const Text('Masuk'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
