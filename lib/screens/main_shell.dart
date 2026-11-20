@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../theme.dart';
 import '../widgets.dart';
+import 'catalog.dart';
 import 'home.dart';
 import 'listings.dart';
 import 'login.dart';
@@ -16,6 +17,7 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  String? _category;
   int _index = 0;
   int _profileVersion = 0;
 
@@ -30,11 +32,13 @@ class _MainShellState extends State<MainShell> {
     final loggedIn = context.watch<CookieRequest>().loggedIn;
 
     final pages = <Widget>[
-      HomePage(onOpenListings: () => setState(() => _index = 2)),
-      const _Placeholder(
-        title: 'Katalog',
-        note: 'Dikerjakan di modul Katalog & Wishlist.',
-      ),
+      HomePage(onOpenCatalog: (category) => setState(() {
+        _category = category;
+        _index = 1;
+      })),
+      CatalogPage(category: _category, onCategoryChanged: (value) {
+        setState(() => _category = value);
+      }),
       const ListingsPage(),
       loggedIn
           ? const _Placeholder(

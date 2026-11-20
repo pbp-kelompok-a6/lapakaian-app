@@ -12,9 +12,9 @@ import 'login.dart';
 import 'profile.dart';
 
 class HomePage extends StatefulWidget {
-  final VoidCallback onOpenListings;
+  final void Function(String?) onOpenCatalog;
 
-  const HomePage({super.key, required this.onOpenListings});
+  const HomePage({super.key, required this.onOpenCatalog});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,9 +38,6 @@ class _HomePageState extends State<HomePage> {
         .map((j) => Product.fromJson(j as Map<String, dynamic>))
         .toList();
   }
-
-  void _snack(String msg) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openLogin() async {
     await Navigator.of(context)
@@ -69,8 +66,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _comingSoon() => _snack('Halaman katalog dikerjakan di modul lain.');
-
   Widget _sectionHeader(String title, String action, VoidCallback onTap) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,7 +81,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _categoryTile(String label) {
     return InkWell(
-      onTap: _comingSoon,
+      onTap: () => widget.onOpenCatalog(label),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         alignment: Alignment.centerLeft,
@@ -189,7 +184,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 24),
               FilledButton(
-                onPressed: widget.onOpenListings,
+                onPressed: () => widget.onOpenCatalog(null),
                 child: const Text('Belanja sekarang'),
               ),
               const SizedBox(height: 12),
@@ -201,7 +196,7 @@ class _HomePageState extends State<HomePage> {
               _sectionHeader(
                 'Kategori',
                 'Lihat semua',
-                widget.onOpenListings,
+                () => widget.onOpenCatalog(null),
               ),
               const SizedBox(height: 8),
               GridView.count(
@@ -217,7 +212,7 @@ class _HomePageState extends State<HomePage> {
               _sectionHeader(
                 'Baru masuk',
                 'Lihat katalog',
-                widget.onOpenListings,
+                () => widget.onOpenCatalog(null),
               ),
               const SizedBox(height: 8),
               _productSection(),
